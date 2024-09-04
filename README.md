@@ -1,3 +1,26 @@
+<h1> This is a maintenance fork of the original monk package. </h1>
+
+Plan to support mongodb versions by popularity. If you have a specific version you would like to see supported, please open an issue.
+
+*Note:* This fork is not affiliated with the original monk package. This fork is maintained by the community.
+
+*Note:* Versions of the package will be updated to reflect the supported mongodb version. They are not concerned with the original monk package.
+
+## Node.js version support:
+[See Node.js Releases](https://nodejs.org/en/about/previous-releases)
+
+## Supported MongoDB versions:
+[See MongoDB Server Releases](https://www.mongodb.com/legal/support-policy/lifecycles)
+
+| package tag | Supported `mongodb` version | complete? |
+|----------|----------|--|
+| 3.2.3  | 3.2.3  | :heavy_check_mark: |
+| 4.17.* | 4.17.2 | :heavy_x_mark: |
+| 5.9.*  | 5.9.2  | :heavy_x_mark: |
+| 6.7.0  | 6.7.0  | :heavy_x_mark: |
+| 6.8.0  | 6.8.0  | :heavy_x_mark: |
+
+
 <h1 align="center">Monk</h1>
 
 <div align="center">
