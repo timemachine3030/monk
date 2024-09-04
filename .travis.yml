@@ -1,10 +1,11 @@
 language: node_js
 node_js:
-  - 8
-  - 9
-  - 10
-  - 11
-  - 12
+  - 18
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
 services: mongodb
 cache:
   directories:
