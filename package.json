@@ -1,7 +1,7 @@
 {
   "name": "monk",
   "description": "The wise MongoDB API",
-  "version": "3.2.3",
+  "version": "4.17.2",
   "main": "lib/monk.js",
   "types": "./index.d.ts",
   "keywords": [
@@ -19,9 +19,8 @@
     "url": "git://github.com/Automattic/monk.git"
   },
   "dependencies": {
-    "@types/mongodb": "^3.5.25",
     "debug": "*",
-    "mongodb": "^3.2.3",
+    "mongodb": "4.17.2",
     "monk-middleware-cast-ids": "^0.2.1",
     "monk-middleware-fields": "^0.2.0",
     "monk-middleware-handle-callback": "^0.2.0",
@@ -53,7 +52,7 @@
   "scripts": {
     "test": "make test",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "docker": "docker run --name mongodb -d mongo:3.2.3"
+    "docker": "docker run --name mongodb -p 27017:27017 -d mongo:4.4.29"
   },
   "nyc": {
     "include": [
