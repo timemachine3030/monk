@@ -17,7 +17,6 @@ A Collection instance has the following methods:
   * [findOneAndUpdate](/findOneAndUpdate.md)
   * [geoHaystackSearch](/geoHaystackSearch.md)
   * [geoNear](/geoNear.md)
-  * [group](/group.md)
   * [indexes](/indexes.md)
   * [insert](/insert.md)
   * [remove](/remove.md)

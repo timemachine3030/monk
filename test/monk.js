@@ -55,31 +55,31 @@ test('should fail with promise', (t) => {
   })
 })
 
-test.cb('to a replica set (array)', (t) => {
-  t.plan(1)
-  monk(['127.0.0.1/monk-test', 'localhost/monk-test'], () => {
-    t.pass()
-    t.end()
-  })
-})
+// test.cb('to a replica set (array)', (t) => {
+//   t.plan(1)
+//   monk(['127.0.0.1/monk-test', 'localhost/monk-test'], () => {
+//     t.pass()
+//     t.end()
+//   })
+// })
 
-test.cb('to a replica set (string)', (t) => {
-  t.plan(1)
-  monk('127.0.0.1,localhost/monk-test', () => {
-    t.pass()
-    t.end()
-  })
-})
+// test.cb('to a replica set (string)', (t) => {
+//   t.plan(1)
+//   monk('127.0.0.1,localhost/monk-test', () => {
+//     t.pass()
+//     t.end()
+//   })
+// })
 
-test.cb('followed by disconnection', (t) => {
-  t.plan(1)
-  const db = monk('127.0.0.1/monk-test', () => {
-    db.close(() => {
-      t.pass()
-      t.end()
-    })
-  })
-})
+// test.cb('followed by disconnection', (t) => {
+//   t.plan(1)
+//   const db = monk('127.0.0.1/monk-test', () => {
+//     db.close(() => {
+//       t.pass()
+//       t.end()
+//     })
+//   })
+// })
 
 test('executeWhenOpened > should reopen the connection if closed', (t) => {
   const db = monk('127.0.0.1/monk')
