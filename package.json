@@ -1,7 +1,7 @@
 {
   "name": "monk",
   "description": "The wise MongoDB API",
-  "version": "7.3.4",
+  "version": "3.2.3",
   "main": "lib/monk.js",
   "types": "./index.d.ts",
   "keywords": [
@@ -52,7 +52,8 @@
   "license": "MIT",
   "scripts": {
     "test": "make test",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "docker": "docker run --name mongodb -d mongo:3.2.3"
   },
   "nyc": {
     "include": [
