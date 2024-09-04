@@ -20,7 +20,6 @@ A Collection instance has the following methods:
   * [group](/group.md)
   * [indexes](/indexes.md)
   * [insert](/insert.md)
-  * [mapReduce](/mapReduce.md)
   * [remove](/remove.md)
   * [stats](/stats.md)
   * [update](/update.md)

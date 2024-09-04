@@ -16,6 +16,7 @@ Plan to support mongodb versions by popularity. If you have a specific version y
 |--------|--------|------|--------------------|
 | 3.2.3  | 3.2.3  | none | :heavy_check_mark: |
 | 4.17.* | 4.17.2 | mongo:4.4.29 | :heavy_x_mark: |
+| 4.17.* | 4.17.2 | mongo:4.4.29 | :heavy_x_mark: |
 | 5.9.*  | 5.9.2  | :heavy_x_mark: |
 | 6.7.0  | 6.7.0  | :heavy_x_mark: |
 | 6.8.0  | 6.8.0  | :heavy_x_mark: |

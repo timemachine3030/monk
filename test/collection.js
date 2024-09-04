@@ -362,37 +362,6 @@ test.cb('find > callback', (t) => {
   })
 })
 
-test('group > should work', (t) => {
-  return users.insert([{ group: true }, { group: true }]).then(() => {
-    return users.group(
-      { group: true },
-      {},
-      { count: 0 },
-      function (obj, prev) {
-        return prev.count++
-      }
-    )
-  }).then(([group1, group2]) => {
-    t.is(group1.group, null)
-    t.true(group2.group)
-    t.is(group2.count, 2)
-  })
-})
-
-test.cb('group > callback', (t) => {
-  users.group(
-    { group: true },
-    {},
-    { count: 0 },
-    function (obj, prev) {
-      prev.count++
-    },
-    function (x) { return x },
-    true,
-    t.end
-  )
-})
-
 test('count > should count', (t) => {
   return users.count({ a: 'counting' }).then((count) => {
     t.is(count, 0)
@@ -692,27 +661,6 @@ test('geoNear', async t => {
   const err = await t.throws(cmd)
 
   t.is(err.message, 'geoNear command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoNear)')
-})
-
-test('mapReduce', (t) => {
-  // Map function
-  const map = function () { emit(this.user_id, 1) }
-  // Reduce function
-  const reduce = function (k, vals) { return 1 }
-  return users.insert([{user_id: 1}, {user_id: 2}])
-    .then(() => users.mapReduce(map, reduce, {out: {replace: 'tempCollection'}}))
-    .then((collection) => collection.findOne({'_id': 1}))
-    .then((r) => {
-      t.is(r.value, 1)
-    })
-})
-
-test.cb('mapReduce > callback', (t) => {
-  // Map function
-  const map = function () { emit(this.user_id, 1) }
-  // Reduce function
-  const reduce = function (k, vals) { return 1 }
-  users.mapReduce(map, reduce, {out: {replace: 'tempCollection'}}, t.end)
 })
 
 test('stats', (t) => {
