@@ -1,9 +1,9 @@
 import test from 'ava'
+import monk from '../lib/monk.mjs'
+import monkMiddlewareDebug from 'monk-middleware-debug'
 
-const monk = require('../lib/monk')
-
-const db = monk('127.0.0.1/monk')
-db.addMiddleware(require('monk-middleware-debug'))
+const db = monk('127.0.0.1:27017/monk')
+db.addMiddleware(monkMiddlewareDebug)
 const users = db.get('users-' + Date.now())
 const indexCol = db.get('index-' + Date.now())
 
@@ -47,8 +47,9 @@ test('createIndex > should accept options', (t) => {
   })
 })
 
-test.cb('createIndex > callback', (t) => {
-  indexCol.createIndex('name.third', t.end)
+test('createIndex > async', async (t) => {
+  const response = await indexCol.createIndex('name.third')
+  t.true(response)
 })
 
 test('index > should accept a field string', (t) => {
@@ -93,10 +94,11 @@ test('dropIndex > should accept object compound indexes', (t) => {
     })
 })
 
-test.cb('dropIndex > callback', (t) => {
-  indexCol.index('name3.first').then(indexCol.indexes).then((indexes) => {
-    t.not(indexes['name3.first_1'], undefined)
-  }).then(() => indexCol.dropIndex('name3.first', t.end))
+test('dropIndex > await', async (t) => {
+  const result = await indexCol.index('name3.first')
+  t.not(result.indexes['name3.first_1'], undefined)
+  const drop = indexCol.dropIndex('name3.first')
+  await t.notThrowsAsync(drop)
 })
 
 test('dropIndexes > should drop all indexes', (t) => {
@@ -112,11 +114,13 @@ test('dropIndexes > should drop all indexes', (t) => {
     })
 })
 
-test.cb('dropIndexes > callback', (t) => {
+test('dropIndexes > await', async (t) => {
   const col = db.get('indexDropCallback-' + Date.now())
-  col.index({ up2: 1, down: -1 }).then(col.indexes).then((indexes) => {
-    t.not(indexes['up2_1_down_-1'], undefined)
-  }).then(() => col.dropIndexes(t.end))
+  const result = await col.index({ up2: 1, down: -1 })
+  t.not(result.indexes['up2_1_down_-1'], undefined)
+
+  const drop = col.dropIndexes()
+  await t.notThrowsAsync(drop)
 })
 
 test('insert > should force callback in next tick', (t) => {
@@ -144,8 +148,9 @@ test('insert > should not fail when inserting an empty array', (t) => {
   })
 })
 
-test.cb('insert > callback', (t) => {
-  users.insert({ woot: 'a' }, t.end)
+test('insert > await', async (t) => {
+  const result = await users.insert({ woot: 'a' })
+  t.is(result.woot, 'a')
 })
 
 test('findOne > should return null if no document', (t) => {
@@ -187,10 +192,10 @@ test('find > should project only specified fields using projection options', t =
   })
 })
 
-test.cb('findOne > callback', (t) => {
-  users.insert({ woot: 'e' }).then((doc) => {
-    return users.findOne(doc._id, t.end)
-  })
+test('findOne > await', async (t) => {
+  const doc = await users.insert({ woot: 'e' })
+  const result = users.findOne(doc._id, t.end)
+  t.is(result.woot, 'e')
 })
 
 test('find > should find with nested query', (t) => {
@@ -346,20 +351,19 @@ test('find > stream pause and continue', (t) => {
   })
 })
 
-test.cb('find > stream callback', (t) => {
+test('find > stream await', async (t) => {
   const query = { stream: 3 }
-  users.insert([{ stream: 3 }, { stream: 3 }, { stream: 3 }, { stream: 3 }]).then(() => {
-    return users.find(query, t.end)
-      .each((doc) => {
-        t.not(doc.a, null)
-      })
+  await users.insert([{ stream: 3 }, { stream: 3 }, { stream: 3 }, { stream: 3 }])
+  const result = await users.find(query)
+  result.each((doc) => {
+    t.not(doc.a, null)
   })
 })
 
-test.cb('find > callback', (t) => {
-  users.insert({ woot: 'e' }).then((doc) => {
-    return users.find(doc._id, t.end)
-  })
+test('find > await', async (t) => {
+  const doc = await users.insert({ woot: 'e' })
+  const result = users.find(doc._id)
+  t.is(result[0].woot, 'e')
 })
 
 test('count > should count', (t) => {
@@ -407,8 +411,9 @@ test('count > should estimate count with options', (t) => {
   })
 })
 
-test.cb('count > callback', (t) => {
-  users.count({ a: 'counting' }, t.end)
+test('count > await', async (t) => {
+  const count = users.count({ a: 'counting' })
+  await t.notThrowsAsync(count)
 })
 
 test('distinct', (t) => {
@@ -427,12 +432,14 @@ test('distinct with options', (t) => {
   })
 })
 
-test.cb('distinct > with options callback', (t) => {
-  users.distinct('distinct', {}, t.end)
+test('distinct > with options async', async (t) => {
+  const cmd = users.distinct('distinct', {})
+  await t.notThrowsAsync(cmd)
 })
 
-test.cb('distinct > callback', (t) => {
-  users.distinct('distinct', t.end)
+test('distinct > async', async (t) => {
+  const distinct = users.distinct('distinct')
+  await t.notThrowsAsync(distinct)
 })
 
 test('update > should update', (t) => {
@@ -455,8 +462,9 @@ test('update > should update with 0', (t) => {
   })
 })
 
-test.cb('update > callback', (t) => {
-  users.update({ d: 'e' }, { $set: { d: 'f' } }, t.end)
+test('update > async', async (t) => {
+  const update = users.update({ d: 'e' }, { $set: { d: 'f' } })
+  await t.notThrowsAsync(update)
 })
 
 test('update > should update with an objectid', (t) => {
@@ -489,8 +497,8 @@ test('remove > should remove a document', (t) => {
   })
 })
 
-test.cb('remove > callback', (t) => {
-  users.remove({ name: 'Mathieu' }, t.end)
+test('remove > async', async (t) => {
+  await users.remove({ name: 'Mathieu' })
 })
 
 test('findOneAndDelete > should remove a document and return it', (t) => {
@@ -504,17 +512,12 @@ test('findOneAndDelete > should remove a document and return it', (t) => {
   })
 })
 
-test.cb('findOneAndDelete > callback', (t) => {
-  users.insert({ name: 'Bob2' }).then((doc) => {
-    users.findOneAndDelete({ name: 'Bob2' }, (err, doc) => {
-      t.is(err, null)
-      t.is(doc.name, 'Bob2')
-      users.find({ name: 'Bob2' }).then((doc) => {
-        t.deepEqual(doc, [])
-        t.end()
-      })
-    })
-  })
+test('findOneAndDelete > async', async (t) => {
+  await users.insert({ name: 'Bob2' })
+  const result = await users.findOneAndDelete({ name: 'Bob2' })
+  t.is(result.name, 'Bob2')
+  const user = await users.find({ name: 'Bob2' })
+  t.deepEqual(user, [])
 })
 
 test('findOneAndDelete > should return null if found nothing', (t) => {
@@ -540,18 +543,15 @@ test('findOneAndUpdate > should return null if found nothing', (t) => {
 })
 
 test('findOneAndUpdate > should return an error if no atomic operations are specified', async t => {
-  const err = await t.throws(users.findOneAndUpdate({ name: 'Jack5' }, { name: 'Jack6' }))
+  const cmd = users.findOneAndUpdate({ name: 'Jack5' }, { name: 'Jack6' })
+  const err = await t.throwsAsync(() => cmd)
   t.is(err.message, 'the update operation document must contain atomic operators.')
 })
 
-test.cb('findOneAndUpdate > callback', (t) => {
-  users.insert({ name: 'Jack2' }).then(() => {
-    users.findOneAndUpdate({ name: 'Jack2' }, { $set: { name: 'Jack3' } }, (err, doc) => {
-      t.is(err, null)
-      t.is(doc.name, 'Jack3')
-      t.end()
-    })
-  })
+test('findOneAndUpdate > async', async (t) => {
+  await users.insert({ name: 'Jack2' })
+  const doc = users.findOneAndUpdate({ name: 'Jack2' }, { $set: { name: 'Jack3' } })
+  t.is(doc.name, 'Jack3')
 })
 
 test('aggregate > should fail properly', (t) => {
@@ -560,11 +560,9 @@ test('aggregate > should fail properly', (t) => {
   })
 })
 
-test.cb('aggregate > should fail properly with callback', (t) => {
-  users.aggregate(undefined, function (err) {
-    t.truthy(err)
-    t.end()
-  })
+test('aggregate > should fail properly with async', async (t) => {
+  const cmd = users.aggregate(undefined)
+  await t.throwsAsync(cmd)
 })
 
 test('aggregate > should work in normal case', (t) => {
@@ -581,8 +579,9 @@ test('aggregate > should work with option', (t) => {
   })
 })
 
-test.cb('aggregate > callback', (t) => {
-  users.aggregate([{$group: {_id: null, maxWoot: { $max: '$woot' }}}], t.end)
+test('aggregate > async', async (t) => {
+  const cmd = users.aggregate([{$group: {_id: null, maxWoot: { $max: '$woot' }}}])
+  await t.notThrowsAsync(cmd)
 })
 
 test('bulkWrite', (t) => {
@@ -593,10 +592,11 @@ test('bulkWrite', (t) => {
   })
 })
 
-test.cb('bulkWrite > callback', (t) => {
-  users.bulkWrite([
+test('bulkWrite > async', async (t) => {
+  const cmd = users.bulkWrite([
     { insertOne: { document: { bulkWrite: 2 } } }
-  ], t.end)
+  ])
+  await t.notThrowsAsync(cmd)
 })
 
 test('should allow defaults', (t) => {
@@ -621,8 +621,9 @@ test('drop > should not throw when dropping an empty db', (t) => {
   return db.get('dropDB-' + Date.now()).drop().then(() => t.pass()).catch(() => t.fail())
 })
 
-test.cb('drop > callback', (t) => {
-  db.get('dropDB2-' + Date.now()).drop(t.end)
+test('drop > async', async (t) => {
+  const drop = db.get('dropDB2-' + Date.now()).drop()
+  await t.notThrowsAsync(drop)
 })
 
 test('caching collections', (t) => {
@@ -635,8 +636,8 @@ test('not caching collections', (t) => {
   t.not(db.get(collectionName, {cache: false}), db.get(collectionName, {cache: false}))
 })
 
-test('geoHaystackSearch', (t) => {
-  return users.createIndex({loc: 'geoHaystack', type: 1}, {bucketSize: 1})
+test('geoHaystackSearch', async (t) => {
+  await users.createIndex({loc: 'geoHaystack', type: 1}, {bucketSize: 1})
     .then(() => users.insert([{a: 1, loc: [50, 30]}, {a: 1, loc: [30, 50]}]))
     .then(() => users.geoHaystackSearch(50, 50, {search: {a: 1}, limit: 1, maxDistance: 100}))
     .then((r) => {
@@ -644,10 +645,11 @@ test('geoHaystackSearch', (t) => {
     })
 })
 
-test.cb('geoHaystackSearch > callback', (t) => {
-  users.createIndex({loc: 'geoHaystack', type: 1}, {bucketSize: 1})
+test('geoHaystackSearch > async', async (t) => {
+  const cmd = users.createIndex({loc: 'geoHaystack', type: 1}, {bucketSize: 1})
     .then(() => users.insert([{a: 1, loc: [50, 30]}, {a: 1, loc: [30, 50]}]))
-    .then(() => users.geoHaystackSearch(50, 50, {search: {a: 1}, maxDistance: 100}, t.end))
+    .then(() => users.geoHaystackSearch(50, 50, {search: {a: 1}, maxDistance: 100}))
+  await t.notThrowsAsync(cmd)
 })
 
 test('geoNear', async t => {
@@ -658,7 +660,7 @@ test('geoNear', async t => {
       t.is(r.length, 1)
     })
 
-  const err = await t.throws(cmd)
+  const err = await t.throwsAsync(() => cmd)
 
   t.is(err.message, 'geoNear command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoNear)')
 })
@@ -669,6 +671,7 @@ test('stats', (t) => {
   })
 })
 
-test.cb('stats > callback', (t) => {
-  users.stats(t.end)
+test('stats > async', async (t) => {
+  const stats = users.stats()
+  await t.notThrowsAsync(stats)
 })

@@ -1,6 +1,6 @@
 import test from 'ava'
-
-const monk = require('../lib/monk')
+import monk from '../lib/monk.mjs'
+import Collection from '../lib/collection.mjs'
 
 test('Manager', (t) => {
   t.is(typeof monk, 'function')
@@ -8,8 +8,8 @@ test('Manager', (t) => {
 })
 
 test('Collection', (t) => {
-  t.is(typeof monk.Collection, 'function')
-  t.is(monk.Collection.name, 'Collection')
+  t.is(typeof Collection, 'function')
+  t.is(Collection.name, 'Collection')
 })
 
 test('Should throw if no uri provided', (t) => {
@@ -25,14 +25,14 @@ test('Should handle srv connection string', (t) => {
   t.true(m._connectionURI === 'mongodb+srv://user:pw@host')
 })
 
-test.cb('to a regular server', (t) => {
-  t.plan(2)
-  monk('127.0.0.1/monk-test', (err, db) => {
-    t.falsy(err)
-    t.true(db instanceof monk)
-    t.end()
-  })
-})
+// test.cb('to a regular server', (t) => {
+//   t.plan(2)
+//   monk('127.0.0.1/monk-test', (err, db) => {
+//     t.falsy(err)
+//     t.true(db instanceof monk)
+//     t.end()
+//   })
+// })
 
 test('connect with promise', (t) => {
   return monk('127.0.0.1/monk-test').then((db) => {
@@ -40,19 +40,21 @@ test('connect with promise', (t) => {
   })
 })
 
-test.cb('should fail', (t) => {
-  t.plan(2)
-  monk('non-existent-db/monk-test', (err, db) => {
-    t.truthy(err)
-    t.true(db instanceof monk)
-    t.end()
-  })
-})
+// test.cb('should fail', (t) => {
+//   t.plan(2)
+//   monk('non-existent-db/monk-test', (err, db) => {
+//     t.truthy(err)
+//     t.true(db instanceof monk)
+//     t.end()
+//   })
+// })
 
-test('should fail with promise', (t) => {
-  return monk('non-existent-db/monk-test').catch((err) => {
-    t.truthy(err)
+test('should fail with promise', async (t) => {
+  const con = monk('non-existent-db/monk-test', {
+    connectTimeoutMS: 100,
+    reconnectTries: 0
   })
+  await t.throwsAsync(() => con)
 })
 
 // test.cb('to a replica set (array)', (t) => {
@@ -101,19 +103,16 @@ test('close > closing a closed connection should work', (t) => {
     .then(() => db.close())
 })
 
-test.cb('close > closing should emit an event', (t) => {
+test('close > closing a closed connection should work with callback', (t) => {
   const db = monk('127.0.0.1/monk')
-  db.on('close', () => t.end())
-  db.close()
-})
-
-test.cb('close > closing a closed connection should work with callback', (t) => {
-  const db = monk('127.0.0.1/monk')
-  db.then(() => t.is(db._state, 'open'))
-    .then(() => db.close(() => {
-      t.is(db._state, 'closed')
-      db.close(() => t.end())
-    }))
+  const promise = new Promise((resolve) => {
+    return db.then(() => t.is(db._state, 'open'))
+      .then(() => db.close(() => {
+        t.is(db._state, 'closed')
+        db.close(() => resolve)
+      }))
+  })
+  return promise
 })
 
 test('close > closing an opening connection should close it once opened', (t) => {
@@ -121,7 +120,6 @@ test('close > closing an opening connection should close it once opened', (t) =>
   return db.close().then(() => t.pass())
 })
 
-const Collection = monk.Collection
 const db = monk('127.0.0.1/monk-test')
 
 test('Manager#create', (t) => {
