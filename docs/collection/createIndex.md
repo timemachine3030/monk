@@ -14,7 +14,7 @@ Creates an index on the db and collection (will not create if already exists)
 
 #### Returns
 
-A promise
+A promise that resolves to the index name.
 
 #### Example
 
