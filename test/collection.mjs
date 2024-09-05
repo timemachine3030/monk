@@ -3,13 +3,13 @@ import monk from '../lib/monk.mjs'
 import monkMiddlewareDebug from 'monk-middleware-debug'
 import { FindCursor } from 'mongodb'
 
-let db, users, indexCol;
+let db, users, indexCol
 test.before(() => {
-  db = monk("127.0.0.1:27017/monk");
-  db.addMiddleware(monkMiddlewareDebug);
-  users = db.get("users-" + Date.now());
-  indexCol = db.get("index-" + Date.now());
-});
+  db = monk("127.0.0.1:27017/monk")
+  db.addMiddleware(monkMiddlewareDebug)
+  users = db.get("users-" + Date.now())
+  indexCol = db.get("index-" + Date.now())
+})
 
 test.after.always(async () => {
   await indexCol.drop()
@@ -153,7 +153,7 @@ test('insert > should return an array if an array was inserted', async (t) => {
   const findResults = await users.find({ woot: { $in: ['c', 'd'] } }).then((docs) => {
     t.is(docs.length, 2)
     return docs
-  });
+  })
   t.is(insertResults[0]._id.toString(), findResults[0]._id.toString())
   t.is(insertResults[1]._id.toString(), findResults[1]._id.toString())
 })
@@ -464,7 +464,7 @@ test('update > should update', (t) => {
     return t.is(doc.d, 'f')
   }).catch((err) => {
     return t.fail(err/message)
-  });
+  })
 })
 
 test('update > should update with 0', (t) => {

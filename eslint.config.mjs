@@ -12,7 +12,6 @@ export default [
     rules: {
       'ava/prefer-async-await': 0,
       '@stylistic/js/indent': ['error', 2, { 'SwitchCase': 1 }],
-      '@stylistic/semi': ['error', 'never'],
       '@stylistic/js/semi': ['error', 'never'],
     }
   }
