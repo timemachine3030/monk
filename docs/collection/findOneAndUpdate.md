@@ -12,7 +12,7 @@ Find a document and update it in one atomic operation, requires a write lock for
 
 3. [`options`] *(Object|String|Array)*: If the `options` is a string, it will be parsed as the fields to select.
 
-`options.returnOriginal` is default to `false`, while `mongodb` set it to `true` for `undefined`.
+`options.returnDocument` is default to `always`, while `mongodb` set it to `false`.
 
 if `options.replaceOne` is `true`, it will work like findOneAndReplace.
 
