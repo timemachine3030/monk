@@ -1,7 +1,6 @@
 import test from 'ava'
-
-const monk = require('../lib/monk')
-const util = require('../lib/helpers')
+import monk from '../lib/monk.mjs'
+import util from '../lib/helpers.mjs'
 
 test('string -> id', (t) => {
   const oid = monk.id('4ee0fd75d6bd52107c000118')
