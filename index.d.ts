@@ -1,5 +1,5 @@
 declare module "monk" {
-  import {
+  export {
     CollectionAggregationOptions,
     MongoCountPreferences,
     BulkWriteOpResultObject,
@@ -29,31 +29,31 @@ declare module "monk" {
     MongoDistinctPreferences,
     CollectionCreateOptions,
     MongoClientOptions,
-  } from "mongodb";
+  } from "./mongodb"
 
   // Utils
-  type SingleOrArray<T> = T | Array<T>;
-  type WithID<T> = { _id: IObjectID } & T;
-  type Callback<T> = (err: Error | null, data: T) => void;
+  export type SingleOrArray<T> = T | Array<T>;
+  export type WithID<T> = { _id: IObjectID } & T;
+  export type Callback<T> = (err: Error | null, data: T) => void;
 
   // Inputs
-  type SingleMulti = { single?: boolean; multi?: boolean };
-  type CreateIndexInput<T> = string | { [key in keyof T]?: 1 | -1 };
-  type CollectionInsertOneOptionsMonk = CollectionInsertOneOptions & {
+  export type SingleMulti = { single?: boolean; multi?: boolean };
+  export type CreateIndexInput<T> = string | { [key in keyof T]?: 1 | -1 };
+  export type CollectionInsertOneOptionsMonk = CollectionInsertOneOptions & {
     castIds: boolean;
   };
-  type DropIndexInput<T> = CreateIndexInput<T> & string[];
-  type DropIndexOptions = CommonOptions & { maxTimeMS?: number };
-  type FindOptions<T> = FindOneOptions<T> & { rawCursor?: boolean };
-  type RemoveOptions = CommonOptions & SingleMulti;
-  type StatsOptions = { scale: number; session?: ClientSession };
+  export type DropIndexInput<T> = CreateIndexInput<T> & string[];
+  export type DropIndexOptions = CommonOptions & { maxTimeMS?: number };
+  export type FindOptions<T> = FindOneOptions<T> & { rawCursor?: boolean };
+  export type RemoveOptions = CommonOptions & SingleMulti;
+  export type StatsOptions = { scale: number; session?: ClientSession };
 
   // Returns
-  type DropResult = "ns not found" | true;
-  type DropIndexResult = { nIndexesWas: number; ok: 1 | 0 };
-  type DropIndexesResult = DropIndexResult & { msg?: string };
-  type FindRawResult<T> = Cursor<WithID<T>>;
-  type FindResult<T> = WithID<T>[] & {
+  export type DropResult = "ns not found" | true;
+  export type DropIndexResult = { nIndexesWas: number; ok: 1 | 0 };
+  export type DropIndexesResult = DropIndexResult & { msg?: string };
+  export type FindRawResult<T> = Cursor<WithID<T>>;
+  export type FindResult<T> = WithID<T>[] & {
     readonly each: (
       listener: (
         record: T,
@@ -65,13 +65,13 @@ declare module "monk" {
       ) => any
     ) => any;
   };
-  type FindOneResult<T> = WithID<T> | null;
-  type GeoHaystackSearchResult<T> = T[];
-  type InsertResult<T> = WithID<T>;
-  type IndexesResult<T> = {
+  export type FindOneResult<T> = WithID<T> | null;
+  export type GeoHaystackSearchResult<T> = T[];
+  export type InsertResult<T> = WithID<T>;
+  export type IndexesResult<T> = {
     [name: string]: [keyof T, 1 | -1][];
   };
-  type UpdateResult = UpdateWriteOpResult["result"];
+  export type UpdateResult = UpdateWriteOpResult["result"];
 
   export type TMiddleware = ({
     collection,
@@ -83,7 +83,7 @@ declare module "monk" {
     next: (args: Object, method: string) => Promise<any>
   ) => (args: Object, method: string) => Promise<any>;
 
-  type CollectionOptions = {
+  export type CollectionOptions = {
     middlewares?: TMiddleware[];
   };
 
@@ -114,8 +114,8 @@ declare module "monk" {
     readonly addMiddleware: (middleware: TMiddleware) => void;
   }
 
-  type TQuery = string | Object;
-  type TFields = string | Array<string>;
+  export type TQuery = string | Object;
+  export type TFields = string | Array<string>;
 
   export class ICollection<T extends { [key: string]: any } = any> {
     readonly manager: IMonkManager;
