@@ -1,7 +1,7 @@
 import test from 'ava'
 import monk from '../lib/monk.mjs'
 import monkMiddlewareDebug from 'monk-middleware-debug'
-import { FindCursor } from 'mongodb'
+import mongo from 'mongodb'
 
 let db, users, indexCol
 test.before(() => {
@@ -258,7 +258,7 @@ test('find > should return the raw cursor', (t) => {
   return users.insert([{ stream: 3 }, { stream: 3 }, { stream: 3 }, { stream: 3 }]).then(() => {
     return users.find(query, {rawCursor: true})
       .then((cursor) => {
-        t.true(cursor instanceof FindCursor)
+        t.true(cursor instanceof mongo.FindCursor)
         t.truthy(cursor.close)
         t.truthy(cursor.hasNext)
         t.truthy(cursor.rewind)
