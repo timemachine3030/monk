@@ -53,5 +53,15 @@ dist/monk.cjs dist/monk.mjs: lib/applyMiddlewares.mjs lib/compose.mjs lib/collec
 
 build: dist/monk.cjs dist/monk.mjs
 
+test-versions:
+	@echo "  $(P) Testing with custom MongoDB version (set MONGOMS_VERSION)"
+	MONGOMS_VERSION=$$MONGOMS_VERSION NODE_ENV=test $(BIN_DIR)/nyc --all $(BIN_DIR)/ava
+
+test-all-versions:
+	@for v in 6.0.14 7.0.14 8.0.0; do \
+	  echo "  $(P) Testing with MongoDB version $$v"; \
+	  MONGOMS_VERSION=$$v make test-versions || exit $$?; \
+	done
+
 .PHONY: lint test test-watch docs-clean docs-prepare docs-build docs-watch docs-publish
 .SILENT: lint test test-watch docs-clean docs-prepare docs-build docs-watch docs-publish
