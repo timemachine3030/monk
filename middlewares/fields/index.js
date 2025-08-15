@@ -1,4 +1,4 @@
-module.exports = function fieldsMiddleware (context) {
+export default function fieldsMiddleware (context) {
   return function (next) {
     return function (args, method) {
       if (!args.fields) {

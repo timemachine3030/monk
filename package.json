@@ -28,22 +28,16 @@
   "type": "module",
   "dependencies": {
     "debug": "*",
-    "mongodb": "4.17.2",
-    "monk-middleware-cast-ids": "^0.2.1",
-    "monk-middleware-fields": "^0.2.0",
-    "monk-middleware-handle-callback": "^0.2.0",
-    "monk-middleware-options": "^0.2.1",
-    "monk-middleware-query": "^0.2.0",
-    "monk-middleware-wait-for-connection": "^0.2.0"
+  "mongodb": "^6.18.0"
   },
   "devDependencies": {
-    "@stylistic/eslint-plugin-js": "^2.7.2",
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@stylistic/eslint-plugin-js": "^2.7.2",
     "ava": "^6.1.3",
     "codecov": "^2.2.0",
     "eslint": "^9.9.1",
@@ -59,7 +53,6 @@
     "gitbook-plugin-github": "^2.0.0",
     "gitbook-plugin-prism": "^2.2.0",
     "mongodb-memory-server": "^10.2.0",
-    "monk-middleware-debug": "^0.2.0",
     "nyc": "^15.0.0",
     "rollup": "^4.16.4"
   },

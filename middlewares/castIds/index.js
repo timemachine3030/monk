@@ -1,4 +1,4 @@
-module.exports = function castIdsMiddleware (fieldsToCast) {
+export default function castIdsMiddleware (fieldsToCast) {
   return function (context) {
     return function (next) {
       return function (args, method) {

@@ -1,4 +1,4 @@
-module.exports = function queryMiddleware (context) {
+export default function queryMiddleware (context) {
   return function (next) {
     return function (args, method) {
       if (!args.query) {

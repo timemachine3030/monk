@@ -17,7 +17,7 @@ function fields (obj, numberWhenMinus) {
   return fields
 }
 
-module.exports = function optionsMiddleware (context) {
+export default function optionsMiddleware (context) {
   return function (next) {
     return function (args, method) {
       var collection = context.collection

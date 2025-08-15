@@ -1,4 +1,4 @@
-module.exports = function waitForConnection (context) {
+export default function waitForConnection (context) {
   return function (next) {
     return function (args, method) {
       return context.monkInstance.executeWhenOpened().then(function (db) {

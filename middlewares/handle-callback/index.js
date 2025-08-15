@@ -17,7 +17,7 @@ function catchFn (fn) {
   }
 }
 
-module.exports = function handleCallback (context) {
+export default function handleCallback (context) {
   return function (next) {
     return function (args, method) {
       return next(args, method).then(thenFn(args.callback)).catch(catchFn(args.callback))
