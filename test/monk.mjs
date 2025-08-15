@@ -1,7 +1,18 @@
+
 import test from "ava"
 import monk from "../lib/monk.mjs"
 import Collection from "../lib/collection.mjs"
 import { Manager } from "../lib/manager.mjs"
+import { MongoMemoryServer } from "mongodb-memory-server"
+
+let mongoServer, uri
+test.before(async () => {
+  mongoServer = await MongoMemoryServer.create()
+  uri = mongoServer.getUri()
+})
+test.after.always(async () => {
+  if (mongoServer) await mongoServer.stop()
+})
 
 test("Manager", (t) => {
   t.is(typeof monk, "function")
@@ -30,13 +41,13 @@ test("Should throw if no uri provided", (t) => {
 // });
 
 test("connect with promise", (t) => {
-  const db = monk("127.0.0.1/monk-test")
+  const db = monk(uri)
   t.true(db instanceof Manager)
   return db.close(true)
 })
 
 test("executeWhenOpened > should reopen the connection if closed", async (t) => {
-  const db = monk("127.0.0.1/monk")
+  const db = monk(uri)
   t.is(db._state, "opening")
   await db.close(true)
   t.is(db._state, "closed")
@@ -46,7 +57,7 @@ test("executeWhenOpened > should reopen the connection if closed", async (t) => 
 })
 
 test("close > closing a closed connection should work", (t) => {
-  const db = monk("127.0.0.1/monk")
+  const db = monk(uri)
   return db
     .then(() => t.is(db._state, "open"))
     .then(() => db.close())
@@ -55,7 +66,7 @@ test("close > closing a closed connection should work", (t) => {
 })
 
 test("close > closing a closed connection should work with callback", async (t) => {
-  const db = monk("127.0.0.1/monk")
+  const db = monk(uri)
   t.is(db._state, "opening")
   await db.close()
   t.is(db._state, "closed")
@@ -67,42 +78,42 @@ test("close > closing a closed connection should work with callback", async (t) 
 })
 
 test("close > closing an opening connection should close it once opened", async (t) => {
-  const db = monk("127.0.0.1/monk")
+  const db = monk(uri)
   await db.close()
   return t.pass()
 })
 
 
 test("option useNewUrlParser should be true if not specified", async (t) => {
-  const db = monk("127.0.0.1/monk-test")
+  const db = monk(uri)
   t.is(db._connectionOptions.useNewUrlParser, true)
   return db.close(true)
 })
 
 
 test("option useNewUrlParser should be true if specified", (t) => {
-  return monk("127.0.0.1/monk-test", { useNewUrlParser: true }).then((db) => {
+  return monk(uri, { useNewUrlParser: true }).then((db) => {
     t.is(db._connectionOptions.useNewUrlParser, true)
     db.close(true)
   })
 })
 
 test("option useNewUrlParser should have the specified value", (t) => {
-  return monk("127.0.0.1/monk-test", { useNewUrlParser: false }).then((db) => {
+  return monk(uri, { useNewUrlParser: false }).then((db) => {
     t.is(db._connectionOptions.useNewUrlParser, false)
     db.close(true)
   })
 })
 
 test("option useUnifiedTopology should be true if not specified", (t) => {
-  return monk("127.0.0.1/monk-test").then((db) => {
+  return monk(uri).then((db) => {
     t.is(db._connectionOptions.useUnifiedTopology, true)
     db.close(true)
   })
 })
 
 test("option useUnifiedTopology should be true if specified", (t) => {
-  return monk("127.0.0.1/monk-test", { useUnifiedTopology: true }).then(
+  return monk(uri, { useUnifiedTopology: true }).then(
     (db) => {
       t.is(db._connectionOptions.useUnifiedTopology, true)
       db.close(true)
@@ -111,7 +122,7 @@ test("option useUnifiedTopology should be true if specified", (t) => {
 })
 
 test("option useUnifiedTopology should have the specified value", (t) => {
-  return monk("127.0.0.1/monk-test", { useUnifiedTopology: false }).then(
+  return monk(uri, { useUnifiedTopology: false }).then(
     (db) => {
       t.is(db._connectionOptions.useUnifiedTopology, false)
       db.close(true)

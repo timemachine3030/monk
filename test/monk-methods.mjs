@@ -1,12 +1,17 @@
+
 import test from 'ava'
 import monk from '../lib/monk.mjs'
 import { Collection } from '../lib/collection.mjs'
-let db
-test.before( () => {
-  db = monk("127.0.0.1/monk-test")
+import { MongoMemoryServer } from 'mongodb-memory-server'
+let db, mongoServer
+test.before(async () => {
+  mongoServer = await MongoMemoryServer.create()
+  const uri = mongoServer.getUri()
+  db = monk(uri)
 })
-test.after.always(() => {
-  return db.close(true)
+test.after.always(async () => {
+  await db.close(true)
+  if (mongoServer) await mongoServer.stop()
 })
 
 

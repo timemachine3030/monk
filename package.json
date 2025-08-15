@@ -49,6 +49,7 @@
     "gitbook-plugin-edit-link": "2.0.2",
     "gitbook-plugin-github": "^2.0.0",
     "gitbook-plugin-prism": "^2.2.0",
+    "mongodb-memory-server": "^10.2.0",
     "monk-middleware-debug": "^0.2.0",
     "nyc": "^15.0.0"
   },

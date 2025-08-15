@@ -3,9 +3,13 @@ import monk from '../lib/monk.mjs'
 import monkMiddlewareDebug from 'monk-middleware-debug'
 import { FindCursor } from 'mongodb'
 
-let db, users, indexCol
-test.before(() => {
-  db = monk("127.0.0.1:27017/monk")
+
+import { MongoMemoryServer } from 'mongodb-memory-server'
+let db, users, indexCol, mongoServer
+test.before(async () => {
+  mongoServer = await MongoMemoryServer.create()
+  const uri = mongoServer.getUri()
+  db = monk(uri)
   db.addMiddleware(monkMiddlewareDebug)
   users = db.get("users-" + Date.now())
   indexCol = db.get("index-" + Date.now())
@@ -14,8 +18,8 @@ test.before(() => {
 test.after.always(async () => {
   await indexCol.drop()
   await users.drop()
-  return db.close(true)
-
+  await db.close(true)
+  if (mongoServer) await mongoServer.stop()
 })
 
 test('createIndex > should accept a field string', (t) => {
@@ -658,7 +662,10 @@ test('geoHaystackSearch > async', async (t) => {
     .then(() => users.geoHaystackSearch(50, 50, {search: {a: 1}, maxDistance: 100}))
   const err = await t.throwsAsync(() => cmd)
 
-  t.is(err.message, 'geoHaystackSearch command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoHaystackSearch)')
+  t.true(
+    err.message.includes('GeoHaystack indexes cannot be created in version 5.0 and above') ||
+    err.message.includes('geoHaystackSearch command is not supported anymore')
+  )
 })
 
 test('geoNear', async t => {
@@ -671,7 +678,10 @@ test('geoNear', async t => {
 
   const err = await t.throwsAsync(() => cmd)
 
-  t.is(err.message, 'geoNear command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoNear)')
+  t.true(
+    err.message.includes('geoNear command is not supported anymore') ||
+    err.message.includes('geoNear command is not supported in version 5.0 and above')
+  )
 })
 
 test('stats', (t) => {
