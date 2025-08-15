@@ -956,6 +956,9 @@ monk.cast = helpers.cast;
  */
 
 exports.Collection = Collection;
+exports.cast = cast;
 exports.default = monk;
 exports.helpers = helpers;
+exports.id = id;
 exports.manager = monk;
+exports.monk = monk;

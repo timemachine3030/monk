@@ -951,4 +951,4 @@ monk.cast = helpers.cast;
  * Module exports
  */
 
-export { Collection, monk as default, helpers, monk as manager };
+export { Collection, cast, monk as default, helpers, id, monk as manager, monk };

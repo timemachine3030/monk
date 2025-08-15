@@ -4,6 +4,7 @@ import stylisticJs from '@stylistic/eslint-plugin-js'
 
 export default [
   {
+    ignorePatterns: ['dist/**'],
     plugins: {
       ava: fixupPluginRules(ava),
       '@stylistic/js': stylisticJs
