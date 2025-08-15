@@ -11,6 +11,10 @@ lint:
 test: lint
 	echo "  $(P) Testing"
 	NODE_ENV=test $(BIN_DIR)/nyc --all $(BIN_DIR)/ava
+	echo "  $(P) Testing ESM entrypoint"
+	node --experimental-vm-modules test/entrypoints/entrypoint-esm.mjs
+	echo "  $(P) Testing CJS entrypoint"
+	node test/entrypoints/entrypoint-cjs.cjs
 
 test-watch:
 	echo "  $(P) Testing forever"
