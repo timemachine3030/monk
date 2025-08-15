@@ -8,7 +8,7 @@ lint:
 	echo "  $(P) Linting"
 	$(BIN_DIR)/eslint lib && $(BIN_DIR)/eslint test && $(BIN_DIR)/eslint middlewares
 
-test: lint
+test: lint build
 	echo "  $(P) Testing"
 	NODE_ENV=test $(BIN_DIR)/nyc --all $(BIN_DIR)/ava
 	echo "  $(P) Testing ESM entrypoint"
@@ -46,6 +46,12 @@ docs-publish: docs-build
 	git add . && \
 	git commit -am 'update book' && \
 	git push https://github.com/Automattic/monk gh-pages --force
+
+dist/monk.cjs dist/monk.mjs: lib/applyMiddlewares.mjs lib/compose.mjs lib/collection.mjs lib/helpers.mjs lib/manager.mjs lib/monk.mjs
+	@echo "  $(P) Building"
+	$(BIN_DIR)/rollup -c
+
+build: dist/monk.cjs dist/monk.mjs
 
 .PHONY: lint test test-watch docs-clean docs-prepare docs-build docs-watch docs-publish
 .SILENT: lint test test-watch docs-clean docs-prepare docs-build docs-watch docs-publish
