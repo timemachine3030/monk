@@ -19,6 +19,7 @@ Plan to support mongodb versions by popularity. If you have a specific version y
 | 5.9.*  | 5.9.2  | :x: |
 | 6.7.0  | 6.7.0  | :x: |
 | 6.8.0  | 6.8.0  | :x: |
+| 8.0.0  | 8.0.0  | :x: | :white_check_mark  |
 
 
 <h1 align="center">Monk</h1>

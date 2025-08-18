@@ -1,7 +1,7 @@
 {
   "name": "monk",
   "description": "The wise MongoDB API",
-  "version": "4.17.2",
+  "version": "8.0.0",
   "main": "dist/monk.cjs",
   "module": "dist/monk.mjs",
   "types": "./index.d.ts",
