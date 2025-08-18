@@ -10,7 +10,7 @@ lint:
 
 test: lint build
 	echo "  $(P) Testing"
-	NODE_ENV=test $(BIN_DIR)/nyc --all $(BIN_DIR)/ava
+	MONGOMS_VERSION=8.0.0 NODE_ENV=test $(BIN_DIR)/nyc --all $(BIN_DIR)/ava
 	echo "  $(P) Testing ESM entrypoint"
 	node --experimental-vm-modules test/entrypoints/entrypoint-esm.mjs
 	echo "  $(P) Testing CJS entrypoint"
@@ -18,7 +18,7 @@ test: lint build
 
 test-watch:
 	echo "  $(P) Testing forever"
-	NODE_ENV=test $(BIN_DIR)/ava --watch
+	MONGOMS_VERSION=8.0.0 NODE_ENV=test $(BIN_DIR)/ava --watch
 
 docs-clean:
 	echo "  $(P) Cleaning gitbook"

@@ -10,17 +10,16 @@ test.before(async () => {
   db = monk(uri)
 })
 test.after.always(async () => {
-  await db.close(true)
+  if (db?._state !== 'closed') {
+    await db.close(true)
+  }
   if (mongoServer) await mongoServer.stop()
 })
 
 
 test('Manager#create', async (t) => {
-  await db.get('users').drop()
-  const col = db.create('users')
+  const col = await db.create('users')
   t.true(col instanceof Collection)
-  t.pass()
-  return db.get('users').drop()
 })
 
 test("Manager#get", (t) => {

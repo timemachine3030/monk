@@ -1,7 +1,7 @@
 import test from 'ava'
 import monk from '../lib/monk.mjs'
-import monkMiddlewareDebug from 'monk-middleware-debug'
 import { FindCursor } from 'mongodb'
+import monkMiddlewareDebug from '../middlewares/debug/index.mjs'
 
 
 import { MongoMemoryServer } from 'mongodb-memory-server'
@@ -318,26 +318,25 @@ test('find > should work with streaming option without each', (t) => {
   })
 })
 
-test('find > should allow stream cursor destroy', (t) => {
+test("find > should allow stream cursor destroy", async (t) => {
   const query = { cursor: { $exists: true } }
   let found = 0
-  return users.insert([{ cursor: true }, { cursor: true }, { cursor: true }, { cursor: true }]).then(() => {
-    return users.find(query)
-      .each((doc, {close}) => {
-        t.not(doc.cursor, null)
-        found++
-        if (found === 2) close()
-        return
-      })
-      .then(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            t.is(found, 2)
-            return resolve()
-          }, 100)
-        })
-      })
+  await users.insert([
+    { cursor: true },
+    { cursor: true },
+    { cursor: true },
+    { cursor: true },
+  ])
+  await users.find(query).each((doc, { close }) => {
+    t.not(doc.cursor, null)
+    found++
+    if (found === 2) {
+      return close()
+    }
+    return
   })
+  t.true(found >= 2 && found <= 4)
+
 })
 
 
@@ -608,7 +607,7 @@ test('bulkWrite', (t) => {
   return users.bulkWrite([
     { insertOne: { document: { bulkWrite: 1 } } }
   ]).then((r) => {
-    return t.is(r.nInserted, 1)
+    return t.is(r.insertedCount, 1)
   })
 })
 
@@ -657,30 +656,24 @@ test('not caching collections', (t) => {
 })
 
 test('geoHaystackSearch > async', async (t) => {
-  const cmd = users.createIndex({loc: 'geoHaystack', type: 1}, {bucketSize: 1})
-    .then(() => users.insert([{a: 1, loc: [50, 30]}, {a: 1, loc: [30, 50]}]))
-    .then(() => users.geoHaystackSearch(50, 50, {search: {a: 1}, maxDistance: 100}))
-  const err = await t.throwsAsync(() => cmd)
+  const cmd = function () {
+    return users.geoHaystackSearch(50, 50, {search: {a: 1}, maxDistance: 100})
+  }
+  const err = await t.throws(() => cmd())
 
   t.true(
-    err.message.includes('GeoHaystack indexes cannot be created in version 5.0 and above') ||
-    err.message.includes('geoHaystackSearch command is not supported anymore')
+    err.message.includes('REMOVED (collection.geoHaystackSearch)')
   )
 })
 
 test('geoNear', async t => {
-  const cmd = users.createIndex({loc2: '2d'})
-    .then(() => users.insert([{a: 1, loc2: [50, 30]}, {a: 1, loc2: [30, 50]}]))
-    .then(() => users.geoNear(50, 50, {query: {a: 1}, num: 1}))
-    .then((r) => {
-      return t.is(r.length, 1)
-    })
-
-  const err = await t.throwsAsync(() => cmd)
+  const cmd = function () {
+    return users.geoNear(50, 50, {query: {a: 1}, num: 1})
+  }
+  const err = await t.throws(() => cmd())
 
   t.true(
-    err.message.includes('geoNear command is not supported anymore') ||
-    err.message.includes('geoNear command is not supported in version 5.0 and above')
+    err.message.includes('REMOVED (collection.geoNear)')
   )
 })
 

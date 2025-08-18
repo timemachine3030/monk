@@ -85,10 +85,10 @@ class Collection {
     throw new Error('REMOVED (collection.ensureIndex): use collection.createIndex instead (see https://Automattic.github.io/monk/docs/collection/createIndex.html)');
   }
   geoHaystackSearch(x, y, opts, fn) {
-    throw new Error('geoHaystackSearch command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoHaystackSearch)');
+    throw new Error('REMOVED (collection.geoHaystackSearch): command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoHaystackSearch)');
   }
   geoNear() {
-    throw new Error('geoNear command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoNear)');
+    throw new Error('REMOVED (collection.geoNear): command is not supported anymore (see https://docs.mongodb.com/manual/reference/command/geoNear)');
   }
   group(keys, condition, initial, reduce, finalize, command, opts, fn) {
     if (typeof opts === 'function') {
@@ -125,12 +125,16 @@ class Collection {
       fn = opts;
       opts = {};
     }
-    return this._dispatch(function remove(args) {
-      return args.col.stats(args.options);
-    })({
-      options: opts,
-      callback: fn
-    }, 'stats');
+    // Use db.command({ collStats: collectionName }) instead of collection.stats()
+    return this.manager._db.command({
+      collStats: this.name,
+      ...opts
+    }).then(res => {
+      if (fn) fn(null, res);
+      return res;
+    }).catch(err => {
+      if (fn) fn(err);else throw err;
+    });
   }
   aggregate(stages, opts, fn) {
     if (typeof opts === 'function') {
@@ -330,11 +334,9 @@ class Collection {
     }
     return this._dispatch(function findOneAndDelete(args) {
       return args.col.findOneAndDelete(args.query, args.options).then(function (doc) {
-        if (doc && typeof doc.value !== 'undefined') {
+        if (!doc) return null;
+        if (typeof doc.value !== 'undefined') {
           return doc.value;
-        }
-        if (doc.ok && doc.lastErrorObject && doc.lastErrorObject.n === 0) {
-          return null;
         }
         return doc;
       });
@@ -358,11 +360,9 @@ class Collection {
         method = 'findOneAndReplace';
       }
       return args.col[method](args.query, args.update, args.options).then(function (doc) {
-        if (doc && typeof doc.value !== 'undefined') {
+        if (!doc) return null;
+        if (typeof doc.value !== 'undefined') {
           return doc.value;
-        }
-        if (doc.ok && doc.lastErrorObject && doc.lastErrorObject.n === 0) {
-          return null;
         }
         return doc;
       });
@@ -464,7 +464,7 @@ class Collection {
  */
 
 function id(str) {
-  if (str == null) return ObjectId();
+  if (str == null) return new ObjectId();
   return typeof str === 'string' ? ObjectId.createFromHexString(str) : str;
 }
 
@@ -504,11 +504,7 @@ var helpers = {
   cast
 };
 
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-var monkMiddlewareQuery = function queryMiddleware(context) {
+function queryMiddleware(context) {
   return function (next) {
     return function (args, method) {
       if (!args.query) {
@@ -522,8 +518,7 @@ var monkMiddlewareQuery = function queryMiddleware(context) {
       return next(args, method);
     };
   };
-};
-var monkMiddlewareQuery$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareQuery);
+}
 
 function fields(obj, numberWhenMinus) {
   if (!Array.isArray(obj) && typeof obj === 'object') {
@@ -540,7 +535,7 @@ function fields(obj, numberWhenMinus) {
   }
   return fields;
 }
-var monkMiddlewareOptions = function optionsMiddleware(context) {
+function optionsMiddleware(context) {
   return function (next) {
     return function (args, method) {
       var collection = context.collection;
@@ -565,10 +560,9 @@ var monkMiddlewareOptions = function optionsMiddleware(context) {
       return next(args, method);
     };
   };
-};
-var monkMiddlewareOptions$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareOptions);
+}
 
-var monkMiddlewareCastIds = function castIdsMiddleware(fieldsToCast) {
+function castIdsMiddleware(fieldsToCast) {
   return function (context) {
     return function (next) {
       return function (args, method) {
@@ -588,10 +582,9 @@ var monkMiddlewareCastIds = function castIdsMiddleware(fieldsToCast) {
       };
     };
   };
-};
-var monkMiddlewareCastIds$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareCastIds);
+}
 
-var monkMiddlewareFields = function fieldsMiddleware(context) {
+function fieldsMiddleware(context) {
   return function (next) {
     return function (args, method) {
       if (!args.fields) {
@@ -609,8 +602,7 @@ var monkMiddlewareFields = function fieldsMiddleware(context) {
       return next(args, method);
     };
   };
-};
-var monkMiddlewareFields$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareFields);
+}
 
 function thenFn(fn) {
   return function (res) {
@@ -629,16 +621,15 @@ function catchFn(fn) {
     throw err;
   };
 }
-var monkMiddlewareHandleCallback = function handleCallback(context) {
+function handleCallback(context) {
   return function (next) {
     return function (args, method) {
       return next(args, method).then(thenFn(args.callback)).catch(catchFn(args.callback));
     };
   };
-};
-var monkMiddlewareHandleCallback$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareHandleCallback);
+}
 
-var monkMiddlewareWaitForConnection = function waitForConnection(context) {
+function waitForConnection(context) {
   return function (next) {
     return function (args, method) {
       return context.monkInstance.executeWhenOpened().then(function (db) {
@@ -649,8 +640,7 @@ var monkMiddlewareWaitForConnection = function waitForConnection(context) {
       });
     };
   };
-};
-var monkMiddlewareWaitForConnection$1 = /*@__PURE__*/getDefaultExportFromCjs(monkMiddlewareWaitForConnection);
+}
 
 var monkDebug = Debug("monk:manager");
 var MongoClient = MongoClient$1;
@@ -662,7 +652,7 @@ var STATE = {
 var FIELDS_TO_CAST = ["operations", "query", "data", "update"];
 var DEFAULT_OPTIONS = {
   castIds: true,
-  middlewares: [monkMiddlewareQuery$1, monkMiddlewareOptions$1, monkMiddlewareCastIds$1(FIELDS_TO_CAST), monkMiddlewareFields$1, monkMiddlewareHandleCallback$1, monkMiddlewareWaitForConnection$1]
+  middlewares: [queryMiddleware, optionsMiddleware, castIdsMiddleware(FIELDS_TO_CAST), fieldsMiddleware, handleCallback, waitForConnection]
 };
 
 /**
@@ -685,11 +675,13 @@ class Manager extends EventEmitter {
       opts = {};
     }
     opts = opts || {};
-    if (!opts.hasOwnProperty("useNewUrlParser")) {
-      opts.useNewUrlParser = true;
+    if (opts.hasOwnProperty("useNewUrlParser")) {
+      const warn = new Error("DEPRECATED (manager): useNewUrlParser is now the default, you can remove it from your options");
+      console.warn(warn);
     }
-    if (!opts.hasOwnProperty("useUnifiedTopology")) {
-      opts.useUnifiedTopology = true;
+    if (opts.hasOwnProperty("useUnifiedTopology")) {
+      const warn = new Error("DEPRECATED (manager): useUnifiedTopology is now the default, you can remove it from your options");
+      console.warn(warn);
     }
     this._collectionOptions = Object.assign({}, DEFAULT_OPTIONS, opts.collectionOptions || {});
     this._collectionOptions.middlewares = this._collectionOptions.middlewares.slice(0);
@@ -854,15 +846,14 @@ class Manager extends EventEmitter {
       const warn = new Error("DEPRECATED (manager.close) call back function is deprecated, please use the promise interface");
       console.warn(warn);
     }
-    const closeClient = resolve => {
-      this._client.close(force, () => {
-        this._state = STATE.CLOSED;
-        if (fn) {
-          fn();
-        }
-        this.emit("close");
-        resolve();
-      });
+    const closeClient = async resolve => {
+      await this._client.close(force);
+      this._state = STATE.CLOSED;
+      if (fn) {
+        await fn();
+      }
+      this.emit("close");
+      resolve();
     };
     return new Promise(resolve => {
       switch (this._state) {

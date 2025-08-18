@@ -56,76 +56,19 @@ test("executeWhenOpened > should reopen the connection if closed", async (t) => 
   return db.close()
 })
 
-test("close > closing a closed connection should work", (t) => {
+test("close > closing a closed connection should work", async (t) => {
   const db = monk(uri)
-  return db
-    .then(() => t.is(db._state, "open"))
-    .then(() => db.close())
-    .then(() => t.is(db._state, "closed"))
-    .then(() => db.close())
-})
-
-test("close > closing a closed connection should work with callback", async (t) => {
-  const db = monk(uri)
-  t.is(db._state, "opening")
+  await new Promise((resolve) => {
+    db.on("open", resolve)
+  })
+  t.is(db._state, "open")
   await db.close()
   t.is(db._state, "closed")
-  return new Promise((resolve) => {
-    db.close(() => {
-      resolve()
-    })
-  })
+  await db.close()
 })
 
 test("close > closing an opening connection should close it once opened", async (t) => {
   const db = monk(uri)
   await db.close()
   return t.pass()
-})
-
-
-test("option useNewUrlParser should be true if not specified", async (t) => {
-  const db = monk(uri)
-  t.is(db._connectionOptions.useNewUrlParser, true)
-  return db.close(true)
-})
-
-
-test("option useNewUrlParser should be true if specified", (t) => {
-  return monk(uri, { useNewUrlParser: true }).then((db) => {
-    t.is(db._connectionOptions.useNewUrlParser, true)
-    db.close(true)
-  })
-})
-
-test("option useNewUrlParser should have the specified value", (t) => {
-  return monk(uri, { useNewUrlParser: false }).then((db) => {
-    t.is(db._connectionOptions.useNewUrlParser, false)
-    db.close(true)
-  })
-})
-
-test("option useUnifiedTopology should be true if not specified", (t) => {
-  return monk(uri).then((db) => {
-    t.is(db._connectionOptions.useUnifiedTopology, true)
-    db.close(true)
-  })
-})
-
-test("option useUnifiedTopology should be true if specified", (t) => {
-  return monk(uri, { useUnifiedTopology: true }).then(
-    (db) => {
-      t.is(db._connectionOptions.useUnifiedTopology, true)
-      db.close(true)
-    }
-  )
-})
-
-test("option useUnifiedTopology should have the specified value", (t) => {
-  return monk(uri, { useUnifiedTopology: false }).then(
-    (db) => {
-      t.is(db._connectionOptions.useUnifiedTopology, false)
-      db.close(true)
-    }
-  )
 })
