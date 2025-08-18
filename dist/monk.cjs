@@ -769,12 +769,13 @@ class Manager extends events.EventEmitter {
    * @return {Collection} collection to query against
    */
   create(name, creationOptions, options) {
-    this.executeWhenOpened().then(function (db) {
-      db.createCollection(name, creationOptions);
-    }).catch(function (err) {
+    return this.executeWhenOpened().then(function (db) {
+      return db.createCollection(name, creationOptions);
+    }).catch(err => {
       this.emit("error", err);
+    }).then(() => {
+      return this.get(name, options);
     });
-    return this.get(name, options);
   }
 
   /**
